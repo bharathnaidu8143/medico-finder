@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Symptom Checker</title>
+  <style>
+    body { font-family: Arial; margin: 40px; }
+    input, button { padding: 10px; width: 400px; margin-top: 10px; }
+    #result { margin-top: 20px; font-weight: bold; }
+    #disclaimer { margin-top: 30px; font-size: 0.9em; color: gray; }
+    .disease { margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+  <h2>🩺 Symptom Checker</h2>
+  <p>Enter symptoms separated by commas (e.g., fever, cold):</p>
+  <input type="text" id="symptomsInput" placeholder="Type symptoms here..." />
+  <button onclick="checkDisease()">Check</button>
+
+  <div id="result"></div>
+  <div id="disclaimer">
+    ⚠️ This tool is for informational purposes only and does not replace professional medical advice. Always consult a doctor for accurate diagnosis and treatment.
+  </div>
+
+  <script>
+    const diseaseDatabase = [
+      { code: "D001", name: "COVID-19", symptoms: ["fever", "cough", "fatigue", "loss of taste", "shortness of breath"] },
+      { code: "D002", name: "Typhoid", symptoms: ["fever", "chills", "sweating", "headache", "abdominal pain"] },
+      { code: "D003", name: "Dengue", symptoms: ["fever", "rash", "joint pain", "headache", "muscle pain"] },
+      { code: "D004", name: "Malaria", symptoms: ["fever", "chills", "sweating", "nausea", "vomiting"] },
+      { code: "D005", name: "Polio", symptoms: ["fever", "fatigue", "headache", "stiff neck", "muscle weakness"] },
+      { code: "D006", name: "Influenza", symptoms: ["fever", "cough", "sore throat", "body ache", "fatigue"] },
+      { code: "D007", name: "Tuberculosis", symptoms: ["cough", "weight loss", "fever", "night sweats", "fatigue"] },
+      { code: "D008", name: "Chikungunya", symptoms: ["fever", "joint pain", "rash", "headache", "muscle pain"] },
+      { code: "D009", name: "Pneumonia", symptoms: ["fever", "cough", "shortness of breath", "chest pain", "fatigue"] },
+      { code: "D010", name: "Hepatitis A", symptoms: ["fever", "fatigue", "loss of appetite", "nausea", "jaundice"] },
+      { code: "D011", name: "Hepatitis B", symptoms: ["abdominal pain", "dark urine", "joint pain", "jaundice", "fatigue"] },
+      { code: "D012", name: "Asthma", symptoms: ["shortness of breath", "wheezing", "cough", "chest tightness"] },
+      { code: "D013", name: "Bronchitis", symptoms: ["cough", "mucus", "fatigue", "shortness of breath", "chest discomfort"] },
+      { code: "D014", name: "Sinusitis", symptoms: ["facial pain", "nasal congestion", "headache", "fever", "cough"] },
+      { code: "D015", name: "Chickenpox", symptoms: ["fever", "rash", "itching", "fatigue", "loss of appetite"] },
+      { code: "D016", name: "Measles", symptoms: ["fever", "rash", "cough", "runny nose", "red eyes"] },
+      { code: "D017", name: "Mumps", symptoms: ["fever", "swollen glands", "headache", "muscle aches", "fatigue"] },
+      { code: "D018", name: "Tonsillitis", symptoms: ["sore throat", "fever", "difficulty swallowing", "swollen tonsils"] },
+      { code: "D019", name: "Appendicitis", symptoms: ["abdominal pain", "fever", "nausea", "vomiting", "loss of appetite"] },
+      { code: "D020", name: "Gastroenteritis", symptoms: ["diarrhea", "vomiting", "abdominal cramps", "fever", "dehydration"] },
+      { code: "D021", name: "Migraine", symptoms: ["headache", "nausea", "sensitivity to light", "vomiting", "blurred vision"] },
+      { code: "D022", name: "Hypertension", symptoms: ["headache", "dizziness", "blurred vision", "chest pain", "fatigue"] },
+      { code: "D023", name: "Diabetes", symptoms: ["frequent urination", "increased thirst", "fatigue", "blurred vision"] },
+      { code: "D024", name: "Anemia", symptoms: ["fatigue", "pale skin", "shortness of breath", "dizziness", "cold hands"] },
+      { code: "D025", name: "Urinary Tract Infection", symptoms: ["burning sensation", "frequent urination", "cloudy urine", "pelvic pain"] }
+    ];
+
+    function checkDisease() {
+      const input = document.getElementById("symptomsInput").value.toLowerCase();
+      const userSymptoms = input.split(",").map(s => s.trim());
+
+      let matches = [];
+
+      diseaseDatabase.forEach(disease => {
+        const matchCount = disease.symptoms.filter(symptom =>
+          userSymptoms.includes(symptom.toLowerCase())
+        ).length;
+
+        if (matchCount >= 2) {
+          matches.push(
+            `<div class="disease">🧾 <strong>${disease.name}</strong> 
+            <br>🧬 Code: ${disease.code} 
+            <br>🩺 Symptoms: ${disease.symptoms.join(", ")}</div>`
+          );
+        }
+      });
+
+      const resultDiv = document.getElementById("result");
+      if (matches.length > 0) {
+        resultDiv.innerHTML = "<h3>Possible Conditions:</h3>" + matches.join("");
+      } else {
+        resultDiv.innerHTML = "No strong matches found. Please consult a healthcare professional.";
+      }
+    }
+  </script>
+</body>
+</html>

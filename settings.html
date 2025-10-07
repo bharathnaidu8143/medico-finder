@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings - AAYUH!</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #e0f7fa, #ffffff);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #00796b;
+      color: white;
+      padding: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .settings-container {
+      max-width: 600px;
+      margin: 40px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #00796b;
+    }
+
+    .setting-item {
+      padding: 15px 0;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .setting-item:last-child {
+      border-bottom: none;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      background-color: #00796b;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #005a4f;
+    }
+
+    .logout-btn {
+      width: 100%;
+      background-color: #d32f2f;
+      margin-top: 20px;
+    }
+
+    img.profile-pic {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header>⚙ Settings</header>
+
+<div class="settings-container">
+  <h2>Manage Your Profile</h2>
+
+  <!-- Profile Picture -->
+  <div class="setting-item">
+    <label>Profile Picture</label>
+    <img id="profilePic" class="profile-pic" src="default-avatar.png" alt="Profile Picture">
+    <input type="file" id="profileImage" accept="image/*">
+    <button onclick="uploadProfilePicture()">Upload</button>
+  </div>
+
+  <!-- Profile Name -->
+  <div class="setting-item">
+    <label for="profileName">Profile Name</label>
+    <input type="text" id="profileName">
+    <button onclick="updateProfileName()">Update Name</button>
+  </div>
+
+  <!-- Emergency Contact -->
+  <div class="setting-item">
+    <label for="emergencyContact">Emergency Contact</label>
+    <input type="text" id="emergencyContact" placeholder="Enter phone number">
+    <button onclick="updateEmergencyContact()">Save Contact</button>
+  </div>
+
+  <!-- Change Password -->
+  <div class="setting-item">
+    <label>Change Password</label>
+    <button onclick="changePassword()">Update Password</button>
+  </div>
+
+  <!-- Logout -->
+  <button class="logout-btn" onclick="logout()">Logout</button>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+<script>
+  // Firebase Config
+  const firebaseConfig = {
+    apiKey: "AIzaSyDVZNBKutvRFrQOFQunVgSBwJFLMvrct0Q",
+    authDomain: "aayuh-c9a87.firebaseapp.com",
+    projectId: "aayuh-c9a87",
+    storageBucket: "aayuh-c9a87.firebasestorage.app",
+    messagingSenderId: "459370049467",
+    appId: "1:459370049467:web:4354a11c6b43d3f6dede9e",
+    measurementId: "G-GNFKCBES0L"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const storage = firebase.storage();
+
+  let currentUser;
+
+  // Check login status and load data
+  auth.onAuthStateChanged(user => {
+    if (!user) {
+      window.location.href = "login.html";
+    } else {
+      currentUser = user;
+      document.getElementById("profileName").value = user.displayName || "";
+
+      // Load profile picture
+      if (user.photoURL) {
+        document.getElementById("profilePic").src = user.photoURL;
+      }
+
+      // Load emergency contact from Firestore
+      db.collection("users").doc(user.uid).get().then(doc => {
+        if (doc.exists && doc.data().emergencyContact) {
+          document.getElementById("emergencyContact").value = doc.data().emergencyContact;
+        }
+      });
+    }
+  });
+
+  // Update profile name
+  function updateProfileName() {
+    const newName = document.getElementById("profileName").value;
+    currentUser.updateProfile({ displayName: newName }).then(() => {
+      alert("Profile name updated!");
+    }).catch(err => alert(err.message));
+  }
+
+  // Update emergency contact
+  function updateEmergencyContact() {
+    const contact = document.getElementById("emergencyContact").value;
+    db.collection("users").doc(currentUser.uid).set({ emergencyContact: contact }, { merge: true })
+      .then(() => alert("Emergency contact saved!"))
+      .catch(err => alert(err.message));
+  }
+
+  // Upload profile picture
+  function uploadProfilePicture() {
+    const file = document.getElementById("profileImage").files[0];
+    if (!file) return alert("Please select an image first.");
+
+    const storageRef = storage.ref(`profilePictures/${currentUser.uid}`);
+    storageRef.put(file).then(() => {
+      storageRef.getDownloadURL().then(url => {
+        currentUser.updateProfile({ photoURL: url }).then(() => {
+          document.getElementById("profilePic").src = url;
+          alert("Profile picture updated!");
+        });
+      });
+    }).catch(err => alert(err.message));
+  }
+
+  // Change password
+  function changePassword() {
+    const newPassword = prompt("Enter your new password:");
+    if (newPassword) {
+      currentUser.updatePassword(newPassword).then(() => {
+        alert("Password updated!");
+      }).catch(err => alert(err.message));
+    }
+  }
+
+  // Logout
+  function logout() {
+    auth.signOut().then(() => {
+      window.location.href = "login.html";
+    });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Emergency Contacts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #d9534f;
+        }
+        .contact {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f9f9f9;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .contact span {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .call-btn {
+            padding: 8px 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .call-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🚨 Emergency Contacts</h2>
+
+        <div class="contact">
+            <span>108 - Ambulance</span>
+            <a href="tel:108" class="call-btn">Call</a>
+        </div>
+
+        <div class="contact">
+            <span>1066 - apollo hospitals</span>
+            <a href="tel:1066" class="call-btn">Call</a>
+        </div>
+
+        <div class="contact">
+            <span>112 - Emergency Ambulance</span>
+            <a href="tel:112" class="call-btn">Call</a>
+        </div>
+
+        <div class="contact">
+            <span>Nearest Hospital</span>
+            <a href="tel:+911234567890" class="call-btn">Call</a>
+        </div>
+
+        <div class="contact">
+            <span>Another Hospital</span>
+            <a href="tel:+919876543210" class="call-btn">Call</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AAYUH! Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+      background-color: #00796b;
+      color: white;
+    }
+    .profile-dropdown { position: relative; }
+    .profile-dropdown span { cursor: pointer; font-weight: bold; }
+    .profile-dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 150px;
+      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+      z-index: 1;
+      top: 40px;
+      left: 0;
+      border-radius: 5px;
+    }
+    .profile-dropdown-content a {
+      color: black;
+      padding: 10px 15px;
+      text-decoration: none;
+      display: block;
+    }
+    .profile-dropdown-content a:hover { background-color: #f1f1f1; }
+    .navbar { display: flex; align-items: center; gap: 30px; }
+    .logo { font-size: 24px; font-weight: bold; }
+    .navbar ul {
+      list-style: none;
+      display: flex;
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+    }
+    .navbar ul li a { color: white; text-decoration: none; font-weight: bold; }
+    .search-bar { margin: 20px auto; text-align: center; }
+    .search-bar input {
+      width: 60%;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .main-content {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    .card {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      width: 200px;
+      text-align: center;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+    .card:hover { transform: scale(1.05); }
+    .card i { font-size: 40px; margin-bottom: 10px; color: #00796b; }
+    .footer {
+      background-color: #00796b;
+      color: white;
+      padding: 10px;
+      text-align: center;
+      position: fixed;
+      width: 100%;
+      bottom: 0;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    @media (max-width: 600px) {
+      .navbar { flex-direction: column; gap: 10px; }
+      .search-bar input { width: 90%; }
+      .main-content { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <!-- Profile Section -->
+    <div class="profile-dropdown">
+      <span onclick="toggleProfileMenu()"><i class="fas fa-user-circle"></i> Profile</span>
+      <div id="profileMenu" class="profile-dropdown-content">
+        <a href="settings.html">Settings</a>
+        <a href="contact us.html">Contact Us</a>
+        <a href="about.html">About</a>
+        <a href="#" id="logoutBtn">Logout</a>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <div class="navbar">
+      <div class="logo">AAYUH!</div>
+      <ul>
+        <li><a href="dashboard.html">Home</a></li>
+        <li><a href="medicines.html">Medicines</a></li>
+        <li><a href="symptoms.html">Symptoms</a></li>
+        <li><a href="disease.html">Disease</a></li>
+        <li><a href="medical_history.html">Medical History</a></li>
+        <li><a href="Emergency.html">Emergency</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <!-- Search Bar -->
+  <div class="search-bar">
+    <input type="text" placeholder="Search symptoms, medicines, diseases..." />
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="card" onclick="window.location.href='medicines.html'">
+      <i class="fas fa-pills"></i>
+      <h3>Medicines</h3>
+    </div>
+    <div class="card" onclick="window.location.href='symptoms.html'">
+      <i class="fas fa-stethoscope"></i>
+      <h3>Symptom Checker</h3>
+    </div>
+    <div class="card" onclick="window.location.href='disease.html'">
+      <i class="fas fa-virus"></i>
+      <h3>Diseases</h3>
+    </div>
+    <div class="card" onclick="window.location.href='my_medical_history.html'">
+      <i class="fas fa-notes-medical"></i>
+      <h3>Medical History</h3>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    India’s Health Companion
+  </div>
+
+  <!-- Profile Dropdown Script -->
+  <script>
+    function toggleProfileMenu() {
+      const menu = document.getElementById('profileMenu');
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+    window.onclick = function(event) {
+      if (!event.target.closest('.profile-dropdown')) {
+        document.getElementById('profileMenu').style.display = 'none';
+      }
+    };
+  </script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVZNBKutvRFrQOFQunVgSBwJFLMvrct0Q",
+      authDomain: "aayuh-c9a87.firebaseapp.com",
+      projectId: "aayuh-c9a87",
+      storageBucket: "aayuh-c9a87.firebasestorage.app",
+      messagingSenderId: "459370049467",
+      appId: "1:459370049467:web:4354a11c6b43d3f6dede9e",
+      measurementId: "G-GNFKCBES0L"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // Redirect to login if not logged in
+    auth.onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", (e) => {
+      e.preventDefault();
+      auth.signOut().then(() => {
+        window.location.href = "login.html";
+      }).catch((error) => {
+        alert("Error logging out: " + error.message);
+      });
+    });
+  </script>
+</body>
+</html>

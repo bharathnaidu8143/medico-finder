@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Medical History Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-storage.js";
+
+    // ✅ Your Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDVZNBKutvRFrQOFQunVgSBwJFLMvrct0Q",
+      authDomain: "aayuh-c9a87.firebaseapp.com",
+      projectId: "aayuh-c9a87",
+      storageBucket: "aayuh-c9a87.appspot.com",
+      messagingSenderId: "459370049467",
+      appId: "1:459370049467:web:4354a11c6b43d3f6dede9e",
+      measurementId: "G-GNFKCBES0L"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    // Simulate logged-in user (replace later with Firebase Auth)
+    const userId = "demoUser123";
+
+    // ✅ Upload Report
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("uploadForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const title = document.getElementById("title").value;
+        const description = document.getElementById("description").value;
+        const doctor = document.getElementById("doctor").value;
+        const date = document.getElementById("date").value;
+        const file = document.getElementById("file").files[0];
+
+        if (!file) {
+          alert("Please select a file!");
+          return;
+        }
+
+        try {
+          const filePath = `reports/${userId}/${Date.now()}_${file.name}`;
+          const storageRef = ref(storage, filePath);
+
+          await uploadBytes(storageRef, file);
+          const fileURL = await getDownloadURL(storageRef);
+
+          await addDoc(collection(db, "medicalReports"), {
+            title,
+            description,
+            doctor,
+            date,
+            fileURL,
+            filePath,   // ✅ stored path for deletion
+            fileType: file.type,
+            userId,
+            timestamp: Date.now()
+          });
+
+          alert("✅ Report uploaded!");
+          document.getElementById("uploadForm").reset();
+          loadReports();
+        } catch (error) {
+          console.error(error);
+          alert("❌ Upload failed: " + error.message);
+        }
+      });
+    });
+
+    // ✅ Load Reports
+    async function loadReports() {
+      const container = document.getElementById("reports");
+      container.innerHTML = "";
+
+      const querySnapshot = await getDocs(collection(db, "medicalReports"));
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (data.userId === userId) {
+          const div = document.createElement("div");
+          div.className = "report-card";
+          div.innerHTML = `
+            <h3>${data.title}</h3>
+            <p><strong>Doctor:</strong> ${data.doctor}</p>
+            <p><strong>Date:</strong> ${data.date}</p>
+            <p>${data.description}</p>
+            <a href="${data.fileURL}" target="_blank">📂 View Report</a>
+            <button onclick="deleteReport('${docSnap.id}', '${data.filePath}')">🗑 Delete</button>
+          `;
+          container.appendChild(div);
+        }
+      });
+    }
+
+    // ✅ Delete Report
+    window.deleteReport = async function (id, filePath) {
+      try {
+        const fileRef = ref(storage, filePath);
+        await deleteObject(fileRef).catch(() => console.log("⚠ File not found in storage"));
+        await deleteDoc(doc(db, "medicalReports", id));
+        alert("🗑 Report deleted!");
+        loadReports();
+      } catch (error) {
+        console.error(error);
+        alert("❌ Failed to delete: " + error.message);
+      }
+    }
+
+    // Load reports on startup
+    window.onload = loadReports;
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f7fb;
+    }
+    h1 {
+      color: #333;
+    }
+    form {
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    input, textarea {
+      display: block;
+      width: 95%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 15px;
+      background: #007bff;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+    .report-card {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .report-card h3 {
+      margin: 0 0 10px;
+    }
+    .report-card a {
+      display: inline-block;
+      margin-right: 10px;
+      color: #007bff;
+      text-decoration: none;
+    }
+    .report-card button {
+      background: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>📑 My Medical Reports</h1>
+
+  <form id="uploadForm">
+    <input type="text" id="title" placeholder="Report Title" required />
+    <input type="text" id="doctor" placeholder="Doctor's Name" required />
+    <input type="date" id="date" required />
+    <textarea id="description" placeholder="Description"></textarea>
+    <input type="file" id="file" required />
+    <button type="submit">Upload Report</button>
+  </form>
+
+  <div id="reports"></div>
+</body>
+</html>
